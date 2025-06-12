@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import './App.css';
 import AdventureStructure from './AdventureStructure';
+const [loading, setLoading] = useState(false);
+const [generatedAdventure, setGeneratedAdventure] = useState('');
 
 
 function App() {
@@ -53,6 +55,48 @@ function App() {
               </div>
             </div>
           </section>
+
+const generateAdventure = async () => {
+  setLoading(true);
+  setGeneratedAdventure('');
+
+  const prompt = `
+Generate a D&D-style adventure with the following settings:
+
+- Genre: ${genre}
+- Tone: ${tone}
+- World Style: ${worldStyle}
+- Ruleset: ${ruleset}
+- Experience Level: ${experienceLevel}
+- Adventure Type: ${tab === 'campaign' ? 'Campaign' : 'One-Shot'}
+- Theme: ${theme}
+- Structure: ${sceneBlocks.join(' → ')}
+- Additional Notes: ${extraNotes || 'None'}
+
+Respond with an adventure structured according to the above.
+`;
+
+  try {
+    const response = await fetch('/api/generate-adventure', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      setGeneratedAdventure(data.result);
+    } else {
+      setGeneratedAdventure(`Error: ${data.error}`);
+    }
+  } catch (err) {
+    console.error(err);
+    setGeneratedAdventure('Unexpected error. Please try again.');
+  } finally {
+    setLoading(false);
+  }
+};
 
 <section className="builder-section">
   <h2>Setting & Theme</h2>
@@ -172,5 +216,45 @@ function App() {
     </div>
   );
 }
+const generateAdventure = async (prompt) => {
+  const response = await fetch('/api/generate-adventure', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt }),
+  });
+
+  const data = await response.json();
+  if (response.ok) {
+    return data.result;
+  } else {
+    throw new Error(data.error || 'Failed to generate adventure.');
+  }
+};
+<div style={{ marginTop: '2rem' }}>
+  <button 
+    onClick={generateAdventure} 
+    disabled={loading}
+    style={{
+      padding: '0.8rem 1.6rem',
+      fontSize: '1.1rem',
+      fontWeight: 'bold',
+      borderRadius: '10px',
+      border: 'none',
+      backgroundColor: '#3b82f6',
+      color: '#fff',
+      cursor: 'pointer',
+      opacity: loading ? 0.6 : 1
+    }}
+  >
+    {loading ? 'Generating...' : 'Generate Adventure'}
+  </button>
+</div>
+
+{generatedAdventure && (
+  <div style={{ marginTop: '2rem', backgroundColor: '#1e293b', padding: '1.5rem', borderRadius: '12px', whiteSpace: 'pre-wrap' }}>
+    <h2>Your Generated Adventure</h2>
+    <p>{generatedAdventure}</p>
+  </div>
+)}
 
 export default App;
