@@ -54,35 +54,102 @@ function App() {
             </div>
           </section>
 
-          <section className="builder-section">
-            <h2>Setting & Theme</h2>
-            <div className="grid">
-              <div>
-                <label>Genre</label>
-                <select>
-                  {['High Fantasy', 'Dark Fantasy', 'Post-Apocalyptic', 'Steampunk', 'No Preference'].map(opt => <option key={opt}>{opt}</option>)}
-                </select>
-              </div>
-              <div>
-                <label>World Style</label>
-                <select>
-                  {['Magic-Rich', 'Low Magic', 'Technological', 'No Preference'].map(opt => <option key={opt}>{opt}</option>)}
-                </select>
-              </div>
-              <div>
-                <label>Tone</label>
-                <select>
-                  {['Lighthearted', 'Grim', 'Epic', 'Mystery', 'No Preference'].map(opt => <option key={opt}>{opt}</option>)}
-                </select>
-              </div>
-              <div>
-                <label>Theme</label>
-                <select>
-                  {['Undead Invasion', 'Political Drama', 'Treasure Hunt', 'Survival', 'No Preference'].map(opt => <option key={opt}>{opt}</option>)}
-                </select>
-              </div>
-            </div>
-          </section>
+<section className="builder-section">
+  <h2>Setting & Theme</h2>
+  <div className="grid">
+    <div>
+      <label>Genre</label>
+      <select>
+        {[
+          'High Fantasy',
+          'Dark Fantasy',
+          'Post-Apocalyptic',
+          'Steampunk',
+          'Science Fiction',
+          'Historical Fiction',
+          'Urban Fantasy',
+          'Dystopian',
+          'Cyberpunk',
+          'Superhero',
+          'Espionage',
+          'Romance',
+          'Mystery',
+          'Horror',
+          'Alternate History',
+          'No Preference'
+        ].map(opt => <option key={opt}>{opt}</option>)}
+      </select>
+    </div>
+    <div>
+      <label>World Style</label>
+      <select>
+        {[
+          'Magic-Rich',
+          'Low Magic',
+          'Technological',
+          'Mythological',
+          'Tribal/Primal',
+          'Feudal Japan',
+          'Victorian',
+          'Utopian',
+          'Underground Cities',
+          'Oceanic Civilization',
+          'Sky Islands',
+          'Biopunk',
+          'Dieselpunk',
+          'Shattered Realms',
+          'No Preference'
+        ].map(opt => <option key={opt}>{opt}</option>)}
+      </select>
+    </div>
+    <div>
+      <label>Tone</label>
+      <select>
+        {[
+          'Lighthearted',
+          'Grim',
+          'Epic',
+          'Mystery',
+          'Hopeful',
+          'Melancholic',
+          'Gritty Realism',
+          'Playful',
+          'Heroic',
+          'Brooding',
+          'Anxious',
+          'Satirical',
+          'Bittersweet',
+          'Brutalist',
+          'No Preference'
+        ].map(opt => <option key={opt}>{opt}</option>)}
+      </select>
+    </div>
+    <div>
+      <label>Theme</label>
+      <select>
+        {[
+          'Undead Invasion',
+          'Political Drama',
+          'Treasure Hunt',
+          'Survival',
+          'Redemption',
+          'Rebellion',
+          'Legacy',
+          'Forbidden Knowledge',
+          'AI Ascendancy',
+          'Secrets',
+          'Found Family',
+          'Power & Corruption',
+          'Social Collapse',
+          'Rise & Fall',
+          'Identity',
+          'No Preference'
+        ].map(opt => <option key={opt}>{opt}</option>)}
+      </select>
+    </div>
+  </div>
+</section>
+
 
           <section className="builder-section">
   <AdventureStructure />
