@@ -76,22 +76,35 @@ Respond with an adventure structured according to the above.
       {activeTab === 'one-shot' && (
         <>
           <section className="builder-section">
-            <h2>Party Info</h2>
-            <div className="grid">
-              <div>
-                <label>Experience Level</label>
-                <select value={experienceLevel} onChange={e => setExperienceLevel(e.target.value)}>
-                  {['Novice', 'Intermediate', 'Expert'].map(level => <option key={level}>{level}</option>)}
-                </select>
-              </div>
-              <div>
-                <label>Ruleset</label>
-                <select value={ruleset} onChange={e => setRuleset(e.target.value)}>
-                  {['5e', 'D&D One', 'Pathfinder', 'Custom'].map(rule => <option key={rule}>{rule}</option>)}
-                </select>
-              </div>
-            </div>
-          </section>
+  <h2>Party Info</h2>
+  <div className="grid">
+    <div>
+      <label># of Players</label>
+      <select>
+        {[...Array(10).keys()].map(i => <option key={i+1}>{i+1}</option>)}
+      </select>
+    </div>
+    <div>
+      <label>Average Player Level</label>
+      <select>
+        {[...Array(20).keys()].map(i => <option key={i+1}>{i+1}</option>)}
+      </select>
+    </div>
+    <div>
+      <label>Player Experience Level</label>
+      <select>
+        {['Novice', 'Intermediate', 'Expert'].map(level => <option key={level}>{level}</option>)}
+      </select>
+    </div>
+    <div>
+      <label>Ruleset</label>
+      <select>
+        {['5e', 'D&D One', 'Pathfinder', 'Custom'].map(rule => <option key={rule}>{rule}</option>)}
+      </select>
+    </div>
+  </div>
+</section>
+
 
           <section className="builder-section">
             <h2>Setting & Theme</h2>
