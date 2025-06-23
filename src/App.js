@@ -14,6 +14,9 @@ function App() {
   const [ruleset, setRuleset] = useState('5e');
   const [experienceLevel, setExperienceLevel] = useState('Novice');
   const [theme, setTheme] = useState('Undead Invasion');
+  const [numPlayers, setNumPlayers] = useState('4');
+  const [averageLevel, setAverageLevel] = useState('5');
+  const [detailLevel, setDetailLevel] = useState('Full Version');
 
   const maxBlocks = 4;
   const availableScenes = ['Combat', 'Puzzle', 'Social Encounter', 'Exploration', 'Investigation', 'Boss Fight'];
@@ -28,27 +31,25 @@ function App() {
     setLoading(true);
     setGeneratedAdventure('');
 
-    const prompt = `
-Generate a D&D-style adventure with the following settings:
-
-- Genre: ${genre}
-- Tone: ${tone}
-- World Style: ${worldStyle}
-- Ruleset: ${ruleset}
-- Experience Level: ${experienceLevel}
-- Adventure Type: ${activeTab === 'campaign' ? 'Campaign' : 'One-Shot'}
-- Theme: ${theme}
-- Structure: ${sceneBlocks.join(' → ')}
-- Additional Notes: ${extraNotes || 'None'}
-
-Respond with an adventure structured according to the above.
-`;
+    const payload = {
+      ruleset,
+      numPlayers,
+      experienceLevel,
+      averageLevel,
+      genre,
+      theme,
+      tone,
+      worldStyle,
+      sceneBlocks,
+      detailLevel,
+      extraNotes
+    };
 
     try {
       const response = await fetch('/api/generate-adventure', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt }),
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
@@ -76,35 +77,34 @@ Respond with an adventure structured according to the above.
       {activeTab === 'one-shot' && (
         <>
           <section className="builder-section">
-  <h2>Party Info</h2>
-  <div className="grid">
-    <div>
-      <label># of Players</label>
-      <select>
-        {[...Array(10).keys()].map(i => <option key={i+1}>{i+1}</option>)}
-      </select>
-    </div>
-    <div>
-      <label>Average Player Level</label>
-      <select>
-        {[...Array(20).keys()].map(i => <option key={i+1}>{i+1}</option>)}
-      </select>
-    </div>
-    <div>
-      <label>Player Experience Level</label>
-      <select>
-        {['Novice', 'Intermediate', 'Expert'].map(level => <option key={level}>{level}</option>)}
-      </select>
-    </div>
-    <div>
-      <label>Ruleset</label>
-      <select>
-        {['5e', 'D&D One', 'Pathfinder', 'Custom'].map(rule => <option key={rule}>{rule}</option>)}
-      </select>
-    </div>
-  </div>
-</section>
-
+            <h2>Party Info</h2>
+            <div className="grid">
+              <div>
+                <label># of Players</label>
+                <select value={numPlayers} onChange={(e) => setNumPlayers(e.target.value)}>
+                  {[...Array(10).keys()].map(i => <option key={i+1}>{i+1}</option>)}
+                </select>
+              </div>
+              <div>
+                <label>Average Player Level</label>
+                <select value={averageLevel} onChange={(e) => setAverageLevel(e.target.value)}>
+                  {[...Array(20).keys()].map(i => <option key={i+1}>{i+1}</option>)}
+                </select>
+              </div>
+              <div>
+                <label>Player Experience Level</label>
+                <select value={experienceLevel} onChange={(e) => setExperienceLevel(e.target.value)}>
+                  {['Novice', 'Intermediate', 'Expert'].map(level => <option key={level}>{level}</option>)}
+                </select>
+              </div>
+              <div>
+                <label>Ruleset</label>
+                <select value={ruleset} onChange={(e) => setRuleset(e.target.value)}>
+                  {['5e', 'D&D One', 'Pathfinder', 'Custom'].map(rule => <option key={rule}>{rule}</option>)}
+                </select>
+              </div>
+            </div>
+          </section>
 
           <section className="builder-section">
             <h2>Setting & Theme</h2>
