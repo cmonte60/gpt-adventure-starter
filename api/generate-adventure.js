@@ -43,19 +43,10 @@ Generate in a clean, formatted markdown-like output ready for rendering or expor
       max_tokens: 3000,
     });
 
-    if (!response.choices || response.choices.length === 0) {
-      throw new Error('No response choices returned from OpenAI');
-    }
-
     const result = response.choices[0].message.content.trim();
     res.status(200).json({ result });
   } catch (error) {
     console.error('OpenAI API error:', error);
-
-    const errorMessage = error?.response?.data?.error?.message || error.message || 'Internal Server Error';
-
-    res.status(500).json({
-      error: `Failed to generate adventure: ${errorMessage}`,
-    });
+    res.status(500).json({ error: 'Failed to generate adventure.' });
   }
 };
