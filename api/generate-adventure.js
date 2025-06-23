@@ -1,13 +1,8 @@
-const { Configuration, OpenAIApi } = require('openai');
+const { OpenAI } = require('openai');
 
-const configuration = new Configuration({
+const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
-
-const openai = new OpenAIApi(configuration);
-
-// Prompt character limit (to prevent overuse)
-const MAX_PROMPT_LENGTH = 3000;
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
@@ -15,63 +10,43 @@ module.exports = async (req, res) => {
   }
 
   const {
-    ruleset,
-    numPlayers,
-    experienceLevel,
-    averageLevel,
     genre,
-    theme,
     tone,
     worldStyle,
-    sceneBlocks,
-    detailLevel
+    ruleset,
+    experienceLevel,
+    theme,
+    structure,
+    extraNotes,
+    numberOfPlayers,
+    averagePlayerLevel,
   } = req.body;
 
-  if (!sceneBlocks || !Array.isArray(sceneBlocks) || sceneBlocks.length === 0) {
-    return res.status(400).json({ error: 'Missing or invalid sceneBlocks array.' });
-  }
+  const prompt = `
+You are an expert ${ruleset} game master. Please generate a full one-shot session for a party of ${numberOfPlayers} ${experienceLevel.toLowerCase()} players, with an average character level of ${averagePlayerLevel}.
+The setting is a ${worldStyle.toLowerCase()} world, with a ${tone.toLowerCase()} tone. The overarching genre is ${genre}, and the theme is ${theme}.
+Structure the session in the following order: ${structure.join(' → ')}.
 
-  // Construct structured prompt
-  let prompt = `
-You are a professional Game Master using the ${ruleset} system.
+Each scene must contain at least 10 full narrative sentences (excluding stat blocks), and should include any required DCs, skill checks, consequences for success/failure, and key NPCs or locations where appropriate. 
+Only include necessary stat information. The one-shot should be fully self-contained and usable without referencing external materials.
 
-Design a one-shot adventure for:
-- Players: ${numPlayers} (${experienceLevel} experience)
-- Average Level: ${averageLevel}
-- Genre: ${genre}
-- Theme: ${theme}
-- Tone: ${tone}
-- World Style: ${worldStyle}
-- Scene Order: ${sceneBlocks.join(', ')}
+Additional user notes (if any): ${extraNotes || 'None'}.
 
-Instructions:
-- ${detailLevel === 'Summary Version'
-      ? 'Keep each scene to 4–6 sentences, focusing on key narrative beats and player decisions.'
-      : 'Each scene must be at least 10 full sentences with narration, obstacles, and consequences.'}
-- Provide important DCs, checks, and consequences of success/failure.
-- Include brief NPC descriptions if needed (no stat blocks).
-- The result should be self-sufficient for running a complete one-shot.
-- Format output with clear scene headers (e.g., “Scene 1: [Title]”).
-
-Respond with the complete one-shot adventure.
+Generate in a clean, formatted markdown-like output ready for rendering or export as a document.
 `;
 
-  // Trim prompt if too long
-  if (prompt.length > MAX_PROMPT_LENGTH) {
-    prompt = prompt.slice(0, MAX_PROMPT_LENGTH) + '\n[Prompt truncated due to length]';
-  }
-
   try {
-    const completion = await openai.createCompletion({
-      model: 'gpt-3.5-turbo-instruct',
-      prompt,
-      max_tokens: 1200,
+    const response = await openai.chat.completions.create({
+      model: 'gpt-3.5-turbo',
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.7,
+      max_tokens: 3000,
     });
 
-    const result = completion.data.choices[0].text.trim();
+    const result = response.choices[0].message.content.trim();
     res.status(200).json({ result });
   } catch (error) {
-    console.error('OpenAI error:', error.response?.data || error.message || error);
+    console.error('OpenAI API error:', error);
     res.status(500).json({ error: 'Failed to generate adventure.' });
   }
 };
