@@ -32,18 +32,18 @@ function App() {
     setGeneratedAdventure('');
 
     const payload = {
-      ruleset,
-      numPlayers,
-      experienceLevel,
-      averageLevel,
-      genre,
-      theme,
-      tone,
-      worldStyle,
-      sceneBlocks,
-      detailLevel,
-      extraNotes
-    };
+  ruleset,
+  numberOfPlayers: numPlayers,
+  experienceLevel,
+  averagePlayerLevel: averageLevel,
+  genre,
+  theme,
+  tone,
+  worldStyle,
+  structure: sceneBlocks, // ✅ Renamed to match backend
+  extraNotes
+};
+
 
     try {
       const response = await fetch('/api/generate-adventure', {
