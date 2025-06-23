@@ -22,10 +22,14 @@ module.exports = async (req, res) => {
     averagePlayerLevel,
   } = req.body;
 
+  if (!Array.isArray(structure)) {
+  return res.status(400).json({ error: 'Invalid or missing "structure" array.' });
+}
+
   const prompt = `
 You are an expert ${ruleset} game master. Please generate a full one-shot session for a party of ${numberOfPlayers} ${experienceLevel.toLowerCase()} players, with an average character level of ${averagePlayerLevel}.
 The setting is a ${worldStyle.toLowerCase()} world, with a ${tone.toLowerCase()} tone. The overarching genre is ${genre}, and the theme is ${theme}.
-Structure the session in the following order: ${structure.join(' → ')}.
+Structure the session in the following order: ${(structure || ['Introduction', 'Conflict', 'Climax', 'Resolution']).join(' → ')}.
 
 Each scene must contain at least 10 full narrative sentences (excluding stat blocks), and should include any required DCs, skill checks, consequences for success/failure, and key NPCs or locations where appropriate. 
 Only include necessary stat information. The one-shot should be fully self-contained and usable without referencing external materials.
