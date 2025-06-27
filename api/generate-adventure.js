@@ -30,70 +30,81 @@ module.exports = async (req, res) => {
     return res.status(400).json({ error: 'Invalid or missing "structure" array.' });
   }
 
-  // Detail Level Map
-  const detailMap = {
-    low: 'Each scene should include 4–5 narrative sentences.',
-    medium: 'Each scene should include 6–8 narrative sentences.',
-    high: 'Each scene should include 10–12 richly descriptive narrative sentences with strong sensory and emotional detail.'
-  };
+  // Detail Instructions Based on Detail Level
+  let detailInstructions = '';
+  switch (detailLevel.toLowerCase()) {
+    case 'low':
+      detailInstructions = 'Each scene should include 4–5 narrative sentences.';
+      break;
+    case 'medium':
+      detailInstructions = 'Each scene should include 6–8 narrative sentences, with suggested DCs, outcomes, and key NPCs or environmental elements.';
+      break;
+    case 'high':
+      detailInstructions = 'Each scene must include at least **12–15** richly written narrative sentences, including detailed setting descriptions, named NPCs with motivations, optional character choices, dynamic skill check outcomes, and relevant stat blocks or puzzles.';
+      break;
+    default:
+      detailInstructions = 'Each scene should include 6–8 narrative sentences.';
+  }
 
-  // Dynamic Sections
+  // Feature Options
   const dialogueLine = includeDialogue
     ? 'Where appropriate, include short snippets of NPC dialogue to guide roleplay.'
     : '';
 
   const combatLine = includeStatblocks
-    ? `For any combat encounters, provide a [STATBLOCK] using this format:
+    ? `For any combat encounters, provide a stat block using this format:
 
-[STATBLOCK: Enemy Name]
-- AC:
-- HP:
-- Attacks:
-- Abilities:
-- Tactics:`
+**Enemy Name**
+- **AC:** 
+- **HP:** 
+- **Attacks:** 
+- **Abilities:** 
+- **Tactics:** `
     : 'Do not include combat statblocks. Assume enemies exist but leave their stats to the DM.';
 
   const puzzleLine = includePuzzles
     ? 'Include at least one puzzle, trap, or ritual requiring player ingenuity. Provide mechanics, success/failure outcomes, and consequences.'
     : '';
 
+  // Markdown-style prompt
   const prompt = `
-You are an expert ${ruleset} game master. Generate a fully playable one-shot for ${numberOfPlayers} ${experienceLevel.toLowerCase()} players (avg. level ${averagePlayerLevel}) in a ${worldStyle.toLowerCase()} setting with a ${tone.toLowerCase()} tone.
-Genre: ${genre}.
-Theme: ${theme}.
+You are an expert ${ruleset} game master. Please generate a full one-shot session for a party of ${numberOfPlayers} ${experienceLevel.toLowerCase()} players, with an average character level of ${averagePlayerLevel}.
+The setting is a ${worldStyle.toLowerCase()} world, with a ${tone.toLowerCase()} tone. The overarching genre is ${genre}, and the theme is ${theme}.
 Structure the session in the following order: ${structure.join(' → ')}.
 
-Use this format:
+${detailInstructions}
 
-[HEADER: Scene Name]
-
-${detailMap[detailLevel]}
 ${dialogueLine}
-- Include key skill checks (with DCs), consequences for success/failure, and meaningful decisions or locations.
 ${puzzleLine}
 ${combatLine}
 
-Use [HEADER], [BULLET], and [STATBLOCK] tags for formatting instead of markdown symbols. Do not include code blocks or markdown.
+Generate in **clean, human-readable markdown**, using headers (##), bold, bullet points, and spacing as needed. Output must be styled for rendering as a professional PDF or web page.
+
+Begin with:
+
+## Prologue
 
 End with:
 
-[HEADER: Conclusion]
+## Conclusion  
 Summarize the party's impact and aftermath.
 
-[HEADER: DM Notes]
+## DM Notes  
 List any treasure, XP, NPC motivations, and optional plot hooks.
-
-Only include structured text that can be rendered cleanly. Do not reference any external material.
 
 Additional user notes: ${extraNotes || 'None'}.
 `;
 
+  // Use gpt-4o for high detail, otherwise gpt-3.5-turbo
+  const model = detailLevel.toLowerCase() === 'high' ? 'gpt-4o' : 'gpt-3.5-turbo';
+  const maxTokens = detailLevel.toLowerCase() === 'high' ? 8000 : 3000;
+
   try {
     const response = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
+      model,
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.7,
-      max_tokens: 3000,
+      max_tokens: maxTokens,
     });
 
     const result = response.choices[0].message.content.trim();
