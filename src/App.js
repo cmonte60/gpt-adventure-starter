@@ -3,7 +3,6 @@ import './App.css';
 import AdventureStructure from './AdventureStructure';
 import { marked } from 'marked';
 
-
 function App() {
   const [activeTab, setActiveTab] = useState('one-shot');
   const [sceneBlocks, setSceneBlocks] = useState([]);
@@ -78,25 +77,31 @@ function App() {
   return (
     <div className="App">
       <div className="tabs">
-        <button onClick={() => setActiveTab('one-shot')} className={activeTab === 'one-shot' ? 'active' : ''}>One-Shot</button>
-        <button onClick={() => setActiveTab('campaign')} className={activeTab === 'campaign' ? 'active' : ''}>Campaign (Premium)</button>
+        <button onClick={() => setActiveTab('one-shot')} className={activeTab === 'one-shot' ? 'active' : ''}>
+          One-Shot
+        </button>
+        <button onClick={() => setActiveTab('campaign')} className={activeTab === 'campaign' ? 'active' : ''}>
+          Campaign (Premium)
+        </button>
       </div>
 
       {activeTab === 'one-shot' && (
         <>
+          {/* Party Info Section */}
           <section className="builder-section">
             <h2>Party Info</h2>
             <div className="grid">
+              {/* ...player configuration dropdowns... */}
               <div>
                 <label># of Players</label>
                 <select value={numPlayers} onChange={(e) => setNumPlayers(e.target.value)}>
-                  {[...Array(10).keys()].map(i => <option key={i+1}>{i+1}</option>)}
+                  {[...Array(10).keys()].map(i => <option key={i + 1}>{i + 1}</option>)}
                 </select>
               </div>
               <div>
                 <label>Average Player Level</label>
                 <select value={averageLevel} onChange={(e) => setAverageLevel(e.target.value)}>
-                  {[...Array(20).keys()].map(i => <option key={i+1}>{i+1}</option>)}
+                  {[...Array(20).keys()].map(i => <option key={i + 1}>{i + 1}</option>)}
                 </select>
               </div>
               <div>
@@ -114,9 +119,11 @@ function App() {
             </div>
           </section>
 
+          {/* Setting & Theme Section */}
           <section className="builder-section">
             <h2>Setting & Theme</h2>
             <div className="grid">
+              {/* ...setting config dropdowns... */}
               <div>
                 <label>Genre</label>
                 <select value={genre} onChange={e => setGenre(e.target.value)}>
@@ -144,6 +151,7 @@ function App() {
             </div>
           </section>
 
+          {/* AI Options Section */}
           <section className="builder-section">
             <h2>AI Customization Options</h2>
             <div className="grid">
@@ -177,7 +185,12 @@ function App() {
           </section>
 
           <section className="builder-section">
-            <AdventureStructure sceneBlocks={sceneBlocks} setSceneBlocks={setSceneBlocks} availableScenes={availableScenes} addSceneBlock={addSceneBlock} />
+            <AdventureStructure
+              sceneBlocks={sceneBlocks}
+              setSceneBlocks={setSceneBlocks}
+              availableScenes={availableScenes}
+              addSceneBlock={addSceneBlock}
+            />
           </section>
 
           <section className="builder-section">
@@ -191,8 +204,8 @@ function App() {
           </section>
 
           <div style={{ marginTop: '2rem' }}>
-            <button 
-              onClick={generateAdventure} 
+            <button
+              onClick={generateAdventure}
               disabled={loading}
               style={{
                 padding: '0.8rem 1.6rem',
@@ -209,38 +222,41 @@ function App() {
               {loading ? 'Generating...' : 'Generate Adventure'}
             </button>
           </div>
+        </>
+      )}
 
-          {generatedAdventure && (
-  <div style={{ marginTop: '2rem', backgroundColor: '#1e293b', padding: '1.5rem', borderRadius: '12px', whiteSpace: 'pre-wrap', color: '#fff' }}>
-    <h2>Your Generated Adventure</h2>
-    <div
-      className="adventure-content"
-      dangerouslySetInnerHTML={{ __html: marked.parse(generatedAdventure) }}
-    />
-    <button
-      onClick={() => {
-        const element = document.querySelector('.adventure-content');
-        import('html2pdf.js').then(({ default: html2pdf }) => {
-          html2pdf().from(element).save('adventure.pdf');
-        });
-      }}
-      style={{
-        marginTop: '1rem',
-        padding: '0.6rem 1.2rem',
-        fontSize: '1rem',
-        borderRadius: '8px',
-        backgroundColor: '#10b981',
-        color: '#fff',
-        border: 'none',
-        cursor: 'pointer'
-      }}
-    >
-      Download as PDF
-    </button>
-  </div>
-)}
+      {/* Adventure Display Block */}
+      {generatedAdventure && (
+        <div style={{ marginTop: '2rem', backgroundColor: '#1e293b', padding: '1.5rem', borderRadius: '12px', whiteSpace: 'pre-wrap', color: '#fff' }}>
+          <h2>Your Generated Adventure</h2>
+          <div
+            className="adventure-content"
+            dangerouslySetInnerHTML={{ __html: marked.parse(generatedAdventure) }}
+          />
+          <button
+            onClick={() => {
+              const element = document.querySelector('.adventure-content');
+              import('html2pdf.js').then(({ default: html2pdf }) => {
+                html2pdf().from(element).save('adventure.pdf');
+              });
+            }}
+            style={{
+              marginTop: '1rem',
+              padding: '0.6rem 1.2rem',
+              fontSize: '1rem',
+              borderRadius: '8px',
+              backgroundColor: '#10b981',
+              color: '#fff',
+              border: 'none',
+              cursor: 'pointer'
+            }}
+          >
+            Download as PDF
+          </button>
+        </div>
+      )}
 
-
+      {/* Campaign Tab Placeholder */}
       {activeTab === 'campaign' && (
         <section className="builder-section">
           <h2>Campaign Builder (Coming Soon for Premium Users)</h2>
@@ -250,8 +266,5 @@ function App() {
     </div>
   );
 }
-
-
-
 
 export default App;
