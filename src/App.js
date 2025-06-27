@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import './App.css';
 import AdventureStructure from './AdventureStructure';
+import { marked } from 'marked';
+
 
 function App() {
   const [activeTab, setActiveTab] = useState('one-shot');
@@ -211,7 +213,11 @@ function App() {
           {generatedAdventure && (
             <div style={{ marginTop: '2rem', backgroundColor: '#1e293b', padding: '1.5rem', borderRadius: '12px', whiteSpace: 'pre-wrap', color: '#fff' }}>
               <h2>Your Generated Adventure</h2>
-              <p>{generatedAdventure}</p>
+              <div
+  className="adventure-content"
+  dangerouslySetInnerHTML={{ __html: marked.parse(generatedAdventure) }}
+/>
+
             </div>
           )}
         </>
@@ -226,5 +232,45 @@ function App() {
     </div>
   );
 }
+.adventure-content h2 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-top: 1rem;
+  text-decoration: underline;
+}
+
+.adventure-content p {
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.adventure-content strong {
+  font-weight: bold;
+}
+
+.adventure-content em {
+  font-style: italic;
+}
+
+<button
+  onClick={() => {
+    const element = document.querySelector('.adventure-content');
+    import('html2pdf.js').then(({ default: html2pdf }) => {
+      html2pdf().from(element).save('adventure.pdf');
+    });
+  }}
+  style={{
+    marginTop: '1rem',
+    padding: '0.6rem 1.2rem',
+    fontSize: '1rem',
+    borderRadius: '8px',
+    backgroundColor: '#10b981',
+    color: '#fff',
+    border: 'none',
+    cursor: 'pointer'
+  }}
+>
+  Download as PDF
+</button>
 
 export default App;
