@@ -151,7 +151,25 @@ textarea {
   font-style: italic;
   margin-top: 2rem;
 }
+.adventure-content h2 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-top: 1rem;
+  text-decoration: underline;
+}
 
+.adventure-content p {
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.adventure-content strong {
+  font-weight: bold;
+}
+
+.adventure-content em {
+  font-style: italic;
+}
 @media (max-width: 600px) {
   .tabs {
     flex-direction: column;
