@@ -20,23 +20,72 @@ module.exports = async (req, res) => {
     extraNotes,
     numberOfPlayers,
     averagePlayerLevel,
+    detailLevel = 'medium',
+    includeDialogue = false,
+    includeStatblocks = false,
+    includePuzzles = false,
   } = req.body;
 
   if (!Array.isArray(structure)) {
-  return res.status(400).json({ error: 'Invalid or missing "structure" array.' });
-}
+    return res.status(400).json({ error: 'Invalid or missing "structure" array.' });
+  }
+
+  // Detail Level Map
+  const detailMap = {
+    low: 'Each scene should include 4–5 narrative sentences.',
+    medium: 'Each scene should include 6–8 narrative sentences.',
+    high: 'Each scene should include 10–12 richly descriptive narrative sentences with strong sensory and emotional detail.'
+  };
+
+  // Dynamic Sections
+  const dialogueLine = includeDialogue
+    ? 'Where appropriate, include short snippets of NPC dialogue to guide roleplay.'
+    : '';
+
+  const combatLine = includeStatblocks
+    ? `For any combat encounters, provide a [STATBLOCK] using this format:
+
+[STATBLOCK: Enemy Name]
+- AC:
+- HP:
+- Attacks:
+- Abilities:
+- Tactics:`
+    : 'Do not include combat statblocks. Assume enemies exist but leave their stats to the DM.';
+
+  const puzzleLine = includePuzzles
+    ? 'Include at least one puzzle, trap, or ritual requiring player ingenuity. Provide mechanics, success/failure outcomes, and consequences.'
+    : '';
 
   const prompt = `
-You are an expert ${ruleset} game master. Please generate a full one-shot session for a party of ${numberOfPlayers} ${experienceLevel.toLowerCase()} players, with an average character level of ${averagePlayerLevel}.
-The setting is a ${worldStyle.toLowerCase()} world, with a ${tone.toLowerCase()} tone. The overarching genre is ${genre}, and the theme is ${theme}.
-Structure the session in the following order: ${(structure || ['Introduction', 'Conflict', 'Climax', 'Resolution']).join(' → ')}.
+You are an expert ${ruleset} game master. Generate a fully playable one-shot for ${numberOfPlayers} ${experienceLevel.toLowerCase()} players (avg. level ${averagePlayerLevel}) in a ${worldStyle.toLowerCase()} setting with a ${tone.toLowerCase()} tone.
+Genre: ${genre}.
+Theme: ${theme}.
+Structure the session in the following order: ${structure.join(' → ')}.
 
-Each scene must contain at least 10 full narrative sentences (excluding stat blocks), and should include any required DCs, skill checks, consequences for success/failure, and key NPCs or locations where appropriate. 
-Only include necessary stat information. The one-shot should be fully self-contained and usable without referencing external materials.
+Use this format:
 
-Additional user notes (if any): ${extraNotes || 'None'}.
+[HEADER: Scene Name]
 
-Generate in a clean, formatted markdown-like output ready for rendering or export as a document.
+${detailMap[detailLevel]}
+${dialogueLine}
+- Include key skill checks (with DCs), consequences for success/failure, and meaningful decisions or locations.
+${puzzleLine}
+${combatLine}
+
+Use [HEADER], [BULLET], and [STATBLOCK] tags for formatting instead of markdown symbols. Do not include code blocks or markdown.
+
+End with:
+
+[HEADER: Conclusion]
+Summarize the party's impact and aftermath.
+
+[HEADER: DM Notes]
+List any treasure, XP, NPC motivations, and optional plot hooks.
+
+Only include structured text that can be rendered cleanly. Do not reference any external material.
+
+Additional user notes: ${extraNotes || 'None'}.
 `;
 
   try {

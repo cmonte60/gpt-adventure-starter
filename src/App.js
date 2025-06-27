@@ -16,7 +16,10 @@ function App() {
   const [theme, setTheme] = useState('Undead Invasion');
   const [numPlayers, setNumPlayers] = useState('4');
   const [averageLevel, setAverageLevel] = useState('5');
-  const [detailLevel, setDetailLevel] = useState('Full Version');
+  const [detailLevel, setDetailLevel] = useState('medium');
+  const [includeDialogue, setIncludeDialogue] = useState(false);
+  const [includeStatblocks, setIncludeStatblocks] = useState(false);
+  const [includePuzzles, setIncludePuzzles] = useState(false);
 
   const maxBlocks = 4;
   const availableScenes = ['Combat', 'Puzzle', 'Social Encounter', 'Exploration', 'Investigation', 'Boss Fight'];
@@ -32,18 +35,21 @@ function App() {
     setGeneratedAdventure('');
 
     const payload = {
-  ruleset,
-  numberOfPlayers: numPlayers,
-  experienceLevel,
-  averagePlayerLevel: averageLevel,
-  genre,
-  theme,
-  tone,
-  worldStyle,
-  structure: sceneBlocks, // ✅ Renamed to match backend
-  extraNotes
-};
-
+      ruleset,
+      numberOfPlayers: numPlayers,
+      experienceLevel,
+      averagePlayerLevel: averageLevel,
+      genre,
+      theme,
+      tone,
+      worldStyle,
+      structure: sceneBlocks,
+      extraNotes,
+      detailLevel,
+      includeDialogue,
+      includeStatblocks,
+      includePuzzles,
+    };
 
     try {
       const response = await fetch('/api/generate-adventure', {
@@ -132,6 +138,38 @@ function App() {
                 <select value={theme} onChange={e => setTheme(e.target.value)}>
                   {['Undead Invasion', 'Political Drama', 'Treasure Hunt', 'Survival', 'Redemption', 'Rebellion', 'Legacy', 'Forbidden Knowledge', 'AI Ascendancy', 'Secrets', 'Found Family', 'Power & Corruption', 'Social Collapse', 'Rise & Fall', 'Identity', 'No Preference'].map(opt => <option key={opt}>{opt}</option>)}
                 </select>
+              </div>
+            </div>
+          </section>
+
+          <section className="builder-section">
+            <h2>AI Customization Options</h2>
+            <div className="grid">
+              <div>
+                <label>Detail Level</label>
+                <select value={detailLevel} onChange={e => setDetailLevel(e.target.value)}>
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                </select>
+              </div>
+              <div>
+                <label>
+                  <input type="checkbox" checked={includeDialogue} onChange={e => setIncludeDialogue(e.target.checked)} />
+                  Include NPC Dialogue
+                </label>
+              </div>
+              <div>
+                <label>
+                  <input type="checkbox" checked={includeStatblocks} onChange={e => setIncludeStatblocks(e.target.checked)} />
+                  Include Combat Statblocks
+                </label>
+              </div>
+              <div>
+                <label>
+                  <input type="checkbox" checked={includePuzzles} onChange={e => setIncludePuzzles(e.target.checked)} />
+                  Include Puzzle Mechanics
+                </label>
               </div>
             </div>
           </section>
