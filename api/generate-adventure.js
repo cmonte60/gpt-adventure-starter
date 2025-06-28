@@ -59,18 +59,30 @@ module.exports = async (req, res) => {
 - **HP:** 
 - **Attacks:** 
 - **Abilities:** 
-- **Tactics:** `
+- **Tactics:**`
     : 'Do not include combat statblocks. Assume enemies exist but leave their stats to the DM.';
 
   const puzzleLine = includePuzzles
     ? 'Include at least one puzzle, trap, or ritual requiring player ingenuity. Provide mechanics, success/failure outcomes, and consequences.'
     : '';
 
+  // STRONG INSTRUCTION TO FOLLOW SCENE STRUCTURE STRICTLY
+  const strictSceneInstruction = `
+Follow the **exact scene structure and sequence** below. Do not substitute or change scene types. Each scene must clearly be labeled and match the type listed:
+${structure.map((scene, i) => `- Scene ${i + 1}: ${scene}`).join('\n')}
+
+If a scene is marked "Combat", it must be a pure combat encounter. If a scene is "Boss Fight", it must be a climactic boss battle. No puzzles, traps, or alternative types should be substituted unless explicitly listed.`;
+
   // Markdown-style prompt
   const prompt = `
-You are an expert ${ruleset} game master. Please generate a full one-shot session for a party of ${numberOfPlayers} ${experienceLevel.toLowerCase()} players, with an average character level of ${averagePlayerLevel}.
-The setting is a ${worldStyle.toLowerCase()} world, with a ${tone.toLowerCase()} tone. The overarching genre is ${genre}, and the theme is ${theme}.
-Structure the session in the following order: ${structure.join(' → ')}.
+You are an expert ${ruleset} game master. Generate a tightly structured one-shot adventure for ${numberOfPlayers} ${experienceLevel.toLowerCase()} players, average level ${averagePlayerLevel}.
+
+World style: ${worldStyle.toLowerCase()}
+Tone: ${tone.toLowerCase()}
+Genre: ${genre}
+Theme: ${theme}
+
+${strictSceneInstruction}
 
 ${detailInstructions}
 
@@ -78,7 +90,7 @@ ${dialogueLine}
 ${puzzleLine}
 ${combatLine}
 
-Generate in **clean, human-readable markdown**, using headers (##), bold, bullet points, and spacing as needed. Output must be styled for rendering as a professional PDF or web page.
+Output in **professional markdown**, styled for PDF or web rendering.
 
 Begin with:
 
@@ -95,7 +107,6 @@ List any treasure, XP, NPC motivations, and optional plot hooks.
 Additional user notes: ${extraNotes || 'None'}.
 `;
 
-  // Use gpt-4o for high detail, otherwise gpt-3.5-turbo
   const model = detailLevel.toLowerCase() === 'high' ? 'gpt-4o' : 'gpt-3.5-turbo';
   const maxTokens = detailLevel.toLowerCase() === 'high' ? 8000 : 3000;
 
