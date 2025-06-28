@@ -65,21 +65,13 @@ module.exports = async (req, res) => {
     ? 'Include at least one puzzle, trap, or ritual. Detail mechanics, skill checks, and success/failure outcomes.'
     : '';
 
-  const strictSceneInstruction = `
-Follow the exact sequence and types below. Do not change or merge scene types. Each scene must begin with a second-level markdown header labeled with the type and scene number.
-
-Example format:
-## Scene 1: Puzzle — [Scene Title]
-
-Scene list:
-${structure.map((scene, i) => `- Scene ${i + 1}: ${scene}`).join('\n')}
-
-Important:
-- A "Combat" scene must involve tactical or violent conflict.
-- A "Puzzle" scene must involve problem-solving.
-- A "Social Encounter" must revolve around negotiation, influence, or conversation.
-- A "Boss Fight" must be a climactic, high-stakes battle.
-- Do not substitute or reinterpret scene types.`.trim();
+  // Generate dynamic scene scaffold to enforce correct headings
+  const sceneMarkdown = structure
+    .map(
+      (sceneType, i) =>
+        `## Scene ${i + 1}: ${sceneType} — [Scene Title]\n[Replace this section with a **${sceneType.toLowerCase()}**-focused scene. Do not change the type or format.]\n`
+    )
+    .join('\n');
 
   const prompt = `
 You are a professional ${ruleset} Dungeon Master. Write a tightly structured **one-shot adventure** for ${numberOfPlayers} ${experienceLevel.toLowerCase()} players at level ${averagePlayerLevel}.
@@ -89,29 +81,27 @@ You are a professional ${ruleset} Dungeon Master. Write a tightly structured **o
 **World Style:** ${worldStyle}  
 **Tone:** ${tone}
 
-${strictSceneInstruction}
+Follow the **exact scene types and order** below. Each scene **must begin** with a second-level markdown header using the exact format provided. Do not substitute, reinterpret, or merge scene types.
 
-${detailInstructions}
+---
 
+## Prologue  
+Introduce the setting, mission hook, and tone.
+
+${sceneMarkdown}
+
+## Conclusion  
+Summarize outcomes and world reaction.
+
+## DM Notes  
+Include treasure, XP, motivations, secrets, and optional hooks.
+
+---
+
+${detailInstructions}  
 ${dialogueLine}  
 ${puzzleLine}  
 ${combatLine}
-
-Output must be in professional **Markdown** format for PDF/web.
-
-### Structure:
-- Begin with:  
-## Prologue  
-Introduce the setting, mission hook, and tone.
-- For each scene:  
-## Scene X: [Scene Type] — [Scene Title]  
-Follow with structured content.
-- End with:  
-## Conclusion  
-Summarize outcomes and world reaction.
-- Finish with:  
-## DM Notes  
-Include treasure, XP, motivations, secrets, and optional hooks.
 
 Additional User Notes:  
 ${extraNotes || 'None'}
