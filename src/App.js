@@ -21,6 +21,25 @@ function App() {
   const [includeDialogue, setIncludeDialogue] = useState(false);
   const [includeStatblocks, setIncludeStatblocks] = useState(false);
   const [includePuzzles, setIncludePuzzles] = useState(false);
+  const pdfStyles = `
+    * {
+      color: #000 !important;
+      background: #fff !important;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      color: #1f2937 !important;
+    }
+    body {
+      font-family: 'Georgia', serif;
+      line-height: 1.6;
+    }
+    code, pre {
+      background: #f3f4f6 !important;
+      color: #111827 !important;
+      padding: 0.5em;
+      border-radius: 6px;
+    }
+  `;
 
   const maxBlocks = 4;
   const availableScenes = ['Combat', 'Puzzle', 'Social Encounter', 'Exploration', 'Investigation', 'Boss Fight'];
@@ -236,23 +255,39 @@ function App() {
           <button
             onClick={() => {
               const element = document.querySelector('.adventure-content');
-              import('html2pdf.js').then(({ default: html2pdf }) => {
-                html2pdf().from(element).save('adventure.pdf');
-              });
-            }}
+
+              // Clone the element to avoid modifying what's visible
+              const clone = element.cloneNode(true);
+
+              // Inject dark text styling into the cloned content
+              const style = document.createElement('style');
+              style.innerHTML = pdfStyles;
+              clone.appendChild(style);
+
+                import('html2pdf.js').then(({ default: html2pdf }) => {
+                  html2pdf().from(clone).set({
+                    margin:       0.5,
+                    filename:     'adventure.pdf',
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2 },
+                    jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' },
+                  }).save();
+                });
+              }}
             style={{
-              marginTop: '1rem',
-              padding: '0.6rem 1.2rem',
-              fontSize: '1rem',
-              borderRadius: '8px',
-              backgroundColor: '#10b981',
-              color: '#fff',
-              border: 'none',
-              cursor: 'pointer'
-            }}
-          >
+                marginTop: '1rem',
+                padding: '0.6rem 1.2rem',
+                fontSize: '1rem',
+                borderRadius: '8px',
+                backgroundColor: '#10b981',
+                color: '#fff',
+                border: 'none',
+                cursor: 'pointer'
+              }}
+            >
             Download as PDF
           </button>
+
         </div>
       )}
 

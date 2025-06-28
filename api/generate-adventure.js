@@ -30,7 +30,7 @@ module.exports = async (req, res) => {
     return res.status(400).json({ error: 'Invalid or missing "structure" array.' });
   }
 
-  // Detail Instructions Based on Detail Level
+  // Detail Level Instructions
   let detailInstructions = '';
   switch (detailLevel.toLowerCase()) {
     case 'low':
@@ -40,19 +40,18 @@ module.exports = async (req, res) => {
       detailInstructions = 'Each scene should include 6–8 narrative sentences, with suggested DCs, outcomes, and key NPCs or environmental elements.';
       break;
     case 'high':
-      detailInstructions = 'Each scene must include at least **12–15** richly written narrative sentences, including detailed setting descriptions, named NPCs with motivations, optional character choices, dynamic skill check outcomes, and relevant stat blocks or puzzles.';
+      detailInstructions = 'Each scene must include 12–15 richly written narrative sentences, with vivid settings, character choices, dynamic outcomes, and optional mechanics or stat blocks.';
       break;
     default:
       detailInstructions = 'Each scene should include 6–8 narrative sentences.';
   }
 
-  // Feature Options
   const dialogueLine = includeDialogue
-    ? 'Where appropriate, include short snippets of NPC dialogue to guide roleplay.'
+    ? 'Include short NPC dialogue snippets to guide player interaction.'
     : '';
 
   const combatLine = includeStatblocks
-    ? `For any combat encounters, provide a stat block using this format:
+    ? `For each combat encounter, provide a stat block in this format:
 
 **Enemy Name**
 - **AC:** 
@@ -60,52 +59,63 @@ module.exports = async (req, res) => {
 - **Attacks:** 
 - **Abilities:** 
 - **Tactics:**`
-    : 'Do not include combat statblocks. Assume enemies exist but leave their stats to the DM.';
+    : 'Combatants should be described narratively; do not include stat blocks.';
 
   const puzzleLine = includePuzzles
-    ? 'Include at least one puzzle, trap, or ritual requiring player ingenuity. Provide mechanics, success/failure outcomes, and consequences.'
+    ? 'Include at least one puzzle, trap, or ritual. Detail mechanics, skill checks, and success/failure outcomes.'
     : '';
 
-  // STRONG INSTRUCTION TO FOLLOW SCENE STRUCTURE STRICTLY
   const strictSceneInstruction = `
-Follow the **exact scene structure and sequence** below. Do not substitute or change scene types. Each scene must clearly be labeled and match the type listed:
+Follow the exact sequence and types below. Do not change or merge scene types. Each scene must begin with a second-level markdown header labeled with the type and scene number.
+
+Example format:
+## Scene 1: Puzzle — [Scene Title]
+
+Scene list:
 ${structure.map((scene, i) => `- Scene ${i + 1}: ${scene}`).join('\n')}
 
-If a scene is marked "Combat", it must be a pure combat encounter. If a scene is "Boss Fight", it must be a climactic boss battle. No puzzles, traps, or alternative types should be substituted unless explicitly listed.`;
+Important:
+- A "Combat" scene must involve tactical or violent conflict.
+- A "Puzzle" scene must involve problem-solving.
+- A "Social Encounter" must revolve around negotiation, influence, or conversation.
+- A "Boss Fight" must be a climactic, high-stakes battle.
+- Do not substitute or reinterpret scene types.`.trim();
 
-  // Markdown-style prompt
   const prompt = `
-You are an expert ${ruleset} game master. Generate a tightly structured one-shot adventure for ${numberOfPlayers} ${experienceLevel.toLowerCase()} players, average level ${averagePlayerLevel}.
+You are a professional ${ruleset} Dungeon Master. Write a tightly structured **one-shot adventure** for ${numberOfPlayers} ${experienceLevel.toLowerCase()} players at level ${averagePlayerLevel}.
 
-World style: ${worldStyle.toLowerCase()}
-Tone: ${tone.toLowerCase()}
-Genre: ${genre}
-Theme: ${theme}
+**Genre:** ${genre}  
+**Theme:** ${theme}  
+**World Style:** ${worldStyle}  
+**Tone:** ${tone}
 
 ${strictSceneInstruction}
 
 ${detailInstructions}
 
-${dialogueLine}
-${puzzleLine}
+${dialogueLine}  
+${puzzleLine}  
 ${combatLine}
 
-Output in **professional markdown**, styled for PDF or web rendering.
+Output must be in professional **Markdown** format for PDF/web.
 
-Begin with:
-
-## Prologue
-
-End with:
-
+### Structure:
+- Begin with:  
+## Prologue  
+Introduce the setting, mission hook, and tone.
+- For each scene:  
+## Scene X: [Scene Type] — [Scene Title]  
+Follow with structured content.
+- End with:  
 ## Conclusion  
-Summarize the party's impact and aftermath.
-
+Summarize outcomes and world reaction.
+- Finish with:  
 ## DM Notes  
-List any treasure, XP, NPC motivations, and optional plot hooks.
+Include treasure, XP, motivations, secrets, and optional hooks.
 
-Additional user notes: ${extraNotes || 'None'}.
-`;
+Additional User Notes:  
+${extraNotes || 'None'}
+  `.trim();
 
   const model = detailLevel.toLowerCase() === 'high' ? 'gpt-4o' : 'gpt-3.5-turbo';
   const maxTokens = detailLevel.toLowerCase() === 'high' ? 8000 : 3000;
