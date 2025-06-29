@@ -49,50 +49,54 @@ function App() {
       setSceneBlocks([...sceneBlocks, scene]);
     }
   };
+console.log('App.js loaded'); // Confirm file is executing
+const generateAdventure = async () => {
+  console.log('generateAdventure() called');
 
-  const generateAdventure = async () => {
-    setLoading(true);
-    setGeneratedAdventure('');
+  setLoading(true);
+  setGeneratedAdventure('');
 
-    const payload = {
-      ruleset,
-      numberOfPlayers: numPlayers,
-      experienceLevel,
-      averagePlayerLevel: averageLevel,
-      genre,
-      theme,
-      tone,
-      worldStyle,
-      structure: sceneBlocks,
-      extraNotes,
-      detailLevel,
-      includeDialogue,
-      includeStatblocks,
-      includePuzzles,
-    };
-
-    try {
-      console.log('Payload being sent to generate-adventure:', payload);
-      const response = await fetch('/api/generate-adventure', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setGeneratedAdventure(data.result);
-      } else {
-        setGeneratedAdventure(`Error: ${data.error}`);
-      }
-    } catch (err) {
-      console.error(err);
-      setGeneratedAdventure('Unexpected error. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+  const payload = {
+    ruleset,
+    numberOfPlayers: numPlayers,
+    experienceLevel,
+    averagePlayerLevel: averageLevel,
+    genre,
+    theme,
+    tone,
+    worldStyle,
+    structure: sceneBlocks,
+    extraNotes,
+    detailLevel,
+    includeDialogue,
+    includeStatblocks,
+    includePuzzles,
   };
+
+  console.log('Payload:', payload);
+
+  try {
+    const response = await fetch('/api/generate-adventure', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+    console.log('Response received:', data);
+
+    if (response.ok) {
+      setGeneratedAdventure(data.result);
+    } else {
+      setGeneratedAdventure(`Error: ${data.error}`);
+    }
+  } catch (err) {
+    console.error('Fetch error:', err);
+    setGeneratedAdventure('Unexpected error. Please try again.');
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="App">
