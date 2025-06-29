@@ -6,6 +6,7 @@ import { marked } from 'marked';
 function App() {
   const [activeTab, setActiveTab] = useState('one-shot');
   const [sceneBlocks, setSceneBlocks] = useState([]);
+  const [timeline, setTimeline] = useState([]); // ✅ NEW STATE
   const [loading, setLoading] = useState(false);
   const [generatedAdventure, setGeneratedAdventure] = useState('');
   const [extraNotes, setExtraNotes] = useState('');
@@ -49,54 +50,54 @@ function App() {
       setSceneBlocks([...sceneBlocks, scene]);
     }
   };
-console.log('App.js loaded'); // Confirm file is executing
-const generateAdventure = async () => {
-  console.log('generateAdventure() called');
+  console.log('App.js loaded'); // Confirm file is executing
+  const generateAdventure = async () => {
+    console.log('generateAdventure() called');
 
-  setLoading(true);
-  setGeneratedAdventure('');
+    setLoading(true);
+    setGeneratedAdventure('');
 
-  const payload = {
-    ruleset,
-    numberOfPlayers: numPlayers,
-    experienceLevel,
-    averagePlayerLevel: averageLevel,
-    genre,
-    theme,
-    tone,
-    worldStyle,
-    structure: sceneBlocks,
-    extraNotes,
-    detailLevel,
-    includeDialogue,
-    includeStatblocks,
-    includePuzzles,
-  };
+    const payload = {
+      ruleset,
+      numberOfPlayers: numPlayers,
+      experienceLevel,
+      averagePlayerLevel: averageLevel,
+      genre,
+      theme,
+      tone,
+      worldStyle,
+      structure: timeline,
+      extraNotes,
+      detailLevel,
+      includeDialogue,
+      includeStatblocks,
+      includePuzzles,
+    };
 
-  console.log('Payload:', payload);
+    console.log('Payload:', payload);
 
-  try {
-    const response = await fetch('/api/generate-adventure', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
+    try {
+      const response = await fetch('/api/generate-adventure', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
 
-    const data = await response.json();
-    console.log('Response received:', data);
+      const data = await response.json();
+      console.log('Response received:', data);
 
-    if (response.ok) {
-      setGeneratedAdventure(data.result);
-    } else {
-      setGeneratedAdventure(`Error: ${data.error}`);
+      if (response.ok) {
+        setGeneratedAdventure(data.result);
+      } else {
+        setGeneratedAdventure(`Error: ${data.error}`);
+      }
+    } catch (err) {
+      console.error('Fetch error:', err);
+      setGeneratedAdventure('Unexpected error. Please try again.');
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    console.error('Fetch error:', err);
-    setGeneratedAdventure('Unexpected error. Please try again.');
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   return (
     <div className="App">
@@ -115,7 +116,6 @@ const generateAdventure = async () => {
           <section className="builder-section">
             <h2>Party Info</h2>
             <div className="grid">
-              {/* ...player configuration dropdowns... */}
               <div>
                 <label># of Players</label>
                 <select value={numPlayers} onChange={(e) => setNumPlayers(e.target.value)}>
@@ -147,7 +147,6 @@ const generateAdventure = async () => {
           <section className="builder-section">
             <h2>Setting & Theme</h2>
             <div className="grid">
-              {/* ...setting config dropdowns... */}
               <div>
                 <label>Genre</label>
                 <select value={genre} onChange={e => setGenre(e.target.value)}>
@@ -214,6 +213,8 @@ const generateAdventure = async () => {
               setSceneBlocks={setSceneBlocks}
               availableScenes={availableScenes}
               addSceneBlock={addSceneBlock}
+              timeline={timeline}
+              setTimeline={setTimeline}
             />
           </section>
 
@@ -249,7 +250,6 @@ const generateAdventure = async () => {
         </>
       )}
 
-      {/* Adventure Display Block */}
       {generatedAdventure && (
         <div style={{ marginTop: '2rem', backgroundColor: '#1e293b', padding: '1.5rem', borderRadius: '12px', whiteSpace: 'pre-wrap', color: '#fff' }}>
           <h2>Your Generated Adventure</h2>
@@ -260,43 +260,36 @@ const generateAdventure = async () => {
           <button
             onClick={() => {
               const element = document.querySelector('.adventure-content');
-
-              // Clone the element to avoid modifying what's visible
               const clone = element.cloneNode(true);
-
-              // Inject dark text styling into the cloned content
               const style = document.createElement('style');
               style.innerHTML = pdfStyles;
               clone.appendChild(style);
-
-                import('html2pdf.js').then(({ default: html2pdf }) => {
-                  html2pdf().from(clone).set({
-                    margin:       0.5,
-                    filename:     'adventure.pdf',
-                    image:        { type: 'jpeg', quality: 0.98 },
-                    html2canvas:  { scale: 2 },
-                    jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' },
-                  }).save();
-                });
-              }}
+              import('html2pdf.js').then(({ default: html2pdf }) => {
+                html2pdf().from(clone).set({
+                  margin: 0.5,
+                  filename: 'adventure.pdf',
+                  image: { type: 'jpeg', quality: 0.98 },
+                  html2canvas: { scale: 2 },
+                  jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
+                }).save();
+              });
+            }}
             style={{
-                marginTop: '1rem',
-                padding: '0.6rem 1.2rem',
-                fontSize: '1rem',
-                borderRadius: '8px',
-                backgroundColor: '#10b981',
-                color: '#fff',
-                border: 'none',
-                cursor: 'pointer'
-              }}
-            >
+              marginTop: '1rem',
+              padding: '0.6rem 1.2rem',
+              fontSize: '1rem',
+              borderRadius: '8px',
+              backgroundColor: '#10b981',
+              color: '#fff',
+              border: 'none',
+              cursor: 'pointer'
+            }}
+          >
             Download as PDF
           </button>
-
         </div>
       )}
 
-      {/* Campaign Tab Placeholder */}
       {activeTab === 'campaign' && (
         <section className="builder-section">
           <h2>Campaign Builder (Coming Soon for Premium Users)</h2>
