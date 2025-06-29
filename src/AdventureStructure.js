@@ -12,7 +12,6 @@ const SCENE_BLOCKS = [
 ];
 
 export default function AdventureStructure({ timeline, setTimeline }) {
-  const [timeline, setTimeline] = useState([]);
 
   // Add a block if under limit (let's say free users max 4 blocks here, adjust as needed)
   function addBlock(block) {
