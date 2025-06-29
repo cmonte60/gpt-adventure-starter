@@ -72,6 +72,7 @@ function App() {
     };
 
     try {
+      console.log('Payload being sent to generate-adventure:', payload);
       const response = await fetch('/api/generate-adventure', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
