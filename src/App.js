@@ -2,9 +2,6 @@ import React, { useState } from 'react';
 import './App.css';
 import AdventureStructure from './AdventureStructure';
 import { marked } from 'marked';
-import { encoding_for_model } from 'gpt-tokenizer'; // add to top
-
-const encoder = encoding_for_model('gpt-4o'); // or 'gpt-4'
 
 function App() {
   const [activeTab, setActiveTab] = useState('one-shot');
@@ -25,7 +22,6 @@ function App() {
   const [includeDialogue, setIncludeDialogue] = useState(false);
   const [includeStatblocks, setIncludeStatblocks] = useState(false);
   const [includePuzzles, setIncludePuzzles] = useState(false);
-
   const pdfStyles = `
     * {
       color: #000 !important;
@@ -46,43 +42,6 @@ function App() {
     }
   `;
 
-  const estimateTokenCount = () => {
-    const payload = {
-      ruleset,
-      numberOfPlayers: numPlayers,
-      experienceLevel,
-      averagePlayerLevel: averageLevel,
-      genre,
-      theme,
-      tone,
-      worldStyle,
-      structure: sceneBlocks,
-      extraNotes,
-      detailLevel,
-      includeDialogue,
-      includeStatblocks,
-      includePuzzles,
-    };
-
-    const rawPrompt = JSON.stringify(payload, null, 2);
-    const tokenEstimate = encoder.encode(rawPrompt).length;
-
-    // Assume average output = 2x input for now
-    const outputTokens = tokenEstimate * 2;
-    const totalTokens = tokenEstimate + outputTokens;
-
-    const estimatedCost = (tokenEstimate * 0.005 + outputTokens * 0.015) / 1000;
-
-    return {
-      tokenEstimate,
-      outputTokens,
-      totalTokens,
-      estimatedCost: estimatedCost.toFixed(4),
-    };
-  };
-
-  const { tokenEstimate, outputTokens, totalTokens, estimatedCost } = estimateTokenCount();
-
   const maxBlocks = 4;
   const availableScenes = ['Combat', 'Puzzle', 'Social Encounter', 'Exploration', 'Investigation', 'Boss Fight'];
 
@@ -91,9 +50,7 @@ function App() {
       setSceneBlocks([...sceneBlocks, scene]);
     }
   };
-
   console.log('App.js loaded'); // Confirm file is executing
-
   const generateAdventure = async () => {
     console.log('generateAdventure() called');
 
@@ -270,11 +227,6 @@ function App() {
               onChange={e => setExtraNotes(e.target.value)}
             />
           </section>
-
-          <div style={{ marginBottom: '1rem', color: '#94a3b8', fontSize: '0.9rem' }}>
-            Estimated Token Usage: <strong>{totalTokens}</strong> tokens (~Input: {tokenEstimate}, Output: {outputTokens})<br />
-            Estimated Cost: <strong>${estimatedCost}</strong> (GPT-4o pricing)
-          </div>
 
           <div style={{ marginTop: '2rem' }}>
             <button
