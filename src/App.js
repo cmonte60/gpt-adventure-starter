@@ -3,6 +3,91 @@ import './App.css';
 import AdventureStructure from './AdventureStructure';
 import { marked } from 'marked';
 
+// Token Estimation Function
+const tokenEstimate = ({
+  numPlayers,
+  averageLevel,
+  experienceLevel,
+  ruleset,
+  genre,
+  worldStyle,
+  tone,
+  theme,
+  detailLevel,
+  includeDialogue,
+  includeStatblocks,
+  includePuzzles,
+  sceneBlocks,
+  extraNotes,
+}) => {
+  const BASE_TOKENS = 300;
+
+  const playerTokens = numPlayers * 25;
+  const levelTokens = averageLevel * 10;
+
+  const experienceTokens = {
+    Novice: 30,
+    Intermediate: 50,
+    Expert: 70,
+  }[experienceLevel] || 0;
+
+  const rulesetTokens = {
+    '5e': 100,
+    'D&D One': 100,
+    Pathfinder: 120,
+    Custom: 180,
+  }[ruleset] || 0;
+
+  const genreTokens = 50;
+  const themeTokens = 50;
+  const toneTokens = 30;
+  const worldStyleTokens = 50;
+
+  const detailTokens = {
+    low: 100,
+    medium: 250,
+    high: 400,
+  }[detailLevel] || 0;
+
+  const dialogueTokens = includeDialogue ? 120 : 0;
+  const statblockTokens = includeStatblocks ? 180 : 0;
+  const puzzleTokens = includePuzzles ? 150 : 0;
+
+  const structureTokens = sceneBlocks.length * 60;
+  const notesTokens = Math.ceil((extraNotes?.length || 0) / 4);
+
+  const inputTokens =
+    BASE_TOKENS +
+    playerTokens +
+    levelTokens +
+    experienceTokens +
+    rulesetTokens +
+    genreTokens +
+    themeTokens +
+    toneTokens +
+    worldStyleTokens +
+    detailTokens +
+    dialogueTokens +
+    statblockTokens +
+    puzzleTokens +
+    structureTokens +
+    notesTokens;
+
+  const outputTokens = Math.round(inputTokens * 2.2);
+  const totalTokens = inputTokens + outputTokens;
+
+  const inputCost = inputTokens * 0.005 / 1000;
+  const outputCost = outputTokens * 0.015 / 1000;
+  const estimatedCost = +(inputCost + outputCost).toFixed(4);
+
+  return {
+    inputTokens,
+    outputTokens,
+    totalTokens,
+    estimatedCost,
+  };
+};
+
 function App() {
   const [activeTab, setActiveTab] = useState('one-shot');
   const [sceneBlocks, setSceneBlocks] = useState([]);
