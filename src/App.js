@@ -4,6 +4,7 @@ import AdventureStructure from './AdventureStructure';
 import { marked } from 'marked';
 
 // Token Estimation Function
+
 const tokenEstimate = ({
   numPlayers,
   averageLevel,
@@ -89,6 +90,7 @@ const tokenEstimate = ({
 };
 
 function App() {
+  const [tokenCostEstimate, setTokenCostEstimate] = useState(null);
   const [activeTab, setActiveTab] = useState('one-shot');
   const [sceneBlocks, setSceneBlocks] = useState([]);
   const [timeline, setTimeline] = useState([]); // ✅ NEW STATE
@@ -136,54 +138,84 @@ function App() {
     }
   };
   console.log('App.js loaded'); // Confirm file is executing
-  const generateAdventure = async () => {
-    console.log('generateAdventure() called');
 
-    setLoading(true);
-    setGeneratedAdventure('');
+const generateAdventure = async () => {
+  console.log('generateAdventure() called');
 
-    const payload = {
-      ruleset,
-      numberOfPlayers: numPlayers,
-      experienceLevel,
-      averagePlayerLevel: averageLevel,
-      genre,
-      theme,
-      tone,
-      worldStyle,
-      structure: timeline,
-      extraNotes,
-      detailLevel,
-      includeDialogue,
-      includeStatblocks,
-      includePuzzles,
-    };
+  setLoading(true);
+  setGeneratedAdventure('');
 
-    console.log('Payload:', payload);
-
-    try {
-      const response = await fetch('/api/generate-adventure', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await response.json();
-      console.log('Response received:', data);
-
-      if (response.ok) {
-        setGeneratedAdventure(data.result);
-      } else {
-        setGeneratedAdventure(`Error: ${data.error}`);
-      }
-    } catch (err) {
-      console.error('Fetch error:', err);
-      setGeneratedAdventure('Unexpected error. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+  const payload = {
+    ruleset,
+    numberOfPlayers: numPlayers,
+    experienceLevel,
+    averagePlayerLevel: averageLevel,
+    genre,
+    theme,
+    tone,
+    worldStyle,
+    structure: timeline,
+    extraNotes,
+    detailLevel,
+    includeDialogue,
+    includeStatblocks,
+    includePuzzles,
   };
 
+  console.log('Payload:', payload);
+
+  const estimation = tokenEstimate({
+    numPlayers: Number(numPlayers),
+    averageLevel: Number(averageLevel),
+    experienceLevel,
+    ruleset,
+    genre,
+    worldStyle,
+    tone,
+    theme,
+    detailLevel,
+    includeDialogue,
+    includeStatblocks,
+    includePuzzles,
+    sceneBlocks,
+    extraNotes,
+  });
+
+  setTokenCostEstimate(estimation);
+
+  try {
+    const response = await fetch('/api/generate-adventure', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+    console.log('Response received:', data);
+
+    if (response.ok) {
+      setGeneratedAdventure(data.result);
+    } else {
+      setGeneratedAdventure(`Error: ${data.error}`);
+    }
+  } catch (err) {
+    console.error('Fetch error:', err);
+    setGeneratedAdventure('Unexpected error. Please try again.');
+  } finally {
+    setLoading(false);
+  }
+};
+{tokenCostEstimate && (
+  <div className="builder-section" style={{ marginTop: '2rem', backgroundColor: '#fefce8', padding: '1rem', borderRadius: '12px' }}>
+    <h3>Estimated Token Usage</h3>
+    <ul>
+      <li><strong>Input Tokens:</strong> {tokenCostEstimate.inputTokens.toLocaleString()}</li>
+      <li><strong>Output Tokens:</strong> {tokenCostEstimate.outputTokens.toLocaleString()}</li>
+      <li><strong>Total Tokens:</strong> {tokenCostEstimate.totalTokens.toLocaleString()}</li>
+      <li><strong>Estimated Cost:</strong> ${tokenCostEstimate.estimatedCost.toFixed(4)}</li>
+    </ul>
+  </div>
+)}
   return (
     <div className="App">
       <div className="tabs">

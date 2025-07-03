@@ -1,5 +1,3 @@
-console.log('generateAdventure() called'); // Confirm it's invoked
-
 const OpenAI = require('openai');
 
 const openai = new OpenAI({
