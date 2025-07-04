@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import './App.css';
 import AdventureStructure from './AdventureStructure';
 import { marked } from 'marked';
-import('html2pdf.js')
 
 // Token Estimation Function
 
@@ -382,35 +381,40 @@ return (
           dangerouslySetInnerHTML={{ __html: marked.parse(generatedAdventure) }}
         />
         <button
-          onClick={() => {
+          onClick={async () => {
             const element = document.querySelector('.adventure-content');
             const clone = element.cloneNode(true);
             const style = document.createElement('style');
             style.innerHTML = pdfStyles;
             clone.appendChild(style);
-            (({ default: html2pdf }) => {
-              html2pdf().from(clone).set({
+            
+            const { default: html2pdf } = await import('html2pdf.js');
+
+            html2pdf()
+              .from(clone)
+              .set({
                 margin: 0.5,
                 filename: 'adventure.pdf',
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { scale: 2 },
                 jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
-              }).save();
-            });
-          }}
-          style={{
-            marginTop: '1rem',
-            padding: '0.6rem 1.2rem',
-            fontSize: '1rem',
-            borderRadius: '8px',
-            backgroundColor: '#10b981',
-            color: '#fff',
-            border: 'none',
-            cursor: 'pointer'
+            })
+             .save();
+         }}
+         style={{
+           marginTop: '1rem',
+           padding: '0.6rem 1.2rem',
+           fontSize: '1rem',
+           borderRadius: '8px',
+           backgroundColor: '#10b981',
+           color: '#fff',
+           border: 'none',
+            cursor: 'pointer',
           }}
         >
           Download as PDF
-        </button>
+       </button>
+
       </div>
     )}
 
