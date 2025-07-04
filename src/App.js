@@ -417,7 +417,7 @@ return (
     {activeTab === 'campaign' && (
       <section className="builder-section">
         <h2>Campaign Builder (Coming Soon for Premium Users)</h2>
-        <p>This feature will allow for chained narratives across multiple sessions with dynamic evolution of character arcs, plotlines, and world events.</p>
+        <p>These features will allow for chained narratives across multiple sessions with dynamic evolution of character arcs, plotlines, and world events.</p>
       </section>
     )}
   </div>
