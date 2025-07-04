@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './App.css';
 import AdventureStructure from './AdventureStructure';
 import { marked } from 'marked';
-
+import('html2pdf.js')
 
 // Token Estimation Function
 
@@ -388,7 +388,7 @@ return (
             const style = document.createElement('style');
             style.innerHTML = pdfStyles;
             clone.appendChild(style);
-            import('html2pdf.js').then(({ default: html2pdf }) => {
+            (({ default: html2pdf }) => {
               html2pdf().from(clone).set({
                 margin: 0.5,
                 filename: 'adventure.pdf',
