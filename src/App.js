@@ -336,19 +336,6 @@ return (
           />
         </section>
 
-        {/* Token Cost Estimate */}
-        {tokenCostEstimate && (
-          <div className="builder-section" style={{ marginTop: '2rem', backgroundColor: '#fefce8', padding: '1rem', borderRadius: '12px' }}>
-            <h3>Estimated Token Usage</h3>
-            <ul>
-              <li><strong>Input Tokens:</strong> {tokenCostEstimate.inputTokens.toLocaleString()}</li>
-              <li><strong>Output Tokens:</strong> {tokenCostEstimate.outputTokens.toLocaleString()}</li>
-              <li><strong>Total Tokens:</strong> {tokenCostEstimate.totalTokens.toLocaleString()}</li>
-              <li><strong>Estimated Cost:</strong> ${tokenCostEstimate.estimatedCost.toFixed(4)}</li>
-            </ul>
-          </div>
-        )}
-
         {/* Generate Button */}
         <div style={{ marginTop: '2rem' }}>
           <button
