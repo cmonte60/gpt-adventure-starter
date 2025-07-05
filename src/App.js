@@ -90,6 +90,27 @@ const tokenEstimate = ({
 };
 
 function App() {
+   const handleDownloadPdf = async () => {
+    const element = document.querySelector('.adventure-content');
+    const clone = element.cloneNode(true);
+    const style = document.createElement('style');
+    style.innerHTML = pdfStyles;
+    clone.appendChild(style);
+
+    const { default: html2pdf } = await import('html2pdf.js');
+
+    html2pdf()
+      .from(clone)
+      .set({
+        margin: 0.5,
+        filename: 'adventure.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
+      })
+      .save();
+  };
+ 
   const [tokenCostEstimate, setTokenCostEstimate] = useState(null);
   const [activeTab, setActiveTab] = useState('one-shot');
   const [sceneBlocks, setSceneBlocks] = useState([]);
@@ -336,6 +357,19 @@ return (
           />
         </section>
 
+        {/* Token Cost Estimate */}
+        {tokenCostEstimate && (
+          <div className="builder-section" style={{ marginTop: '2rem', backgroundColor: '#fefce8', padding: '1rem', borderRadius: '12px' }}>
+            <h3>Estimated Token Usage</h3>
+            <ul>
+              <li><strong>Input Tokens:</strong> {tokenCostEstimate.inputTokens.toLocaleString()}</li>
+              <li><strong>Output Tokens:</strong> {tokenCostEstimate.outputTokens.toLocaleString()}</li>
+              <li><strong>Total Tokens:</strong> {tokenCostEstimate.totalTokens.toLocaleString()}</li>
+              <li><strong>Estimated Cost:</strong> ${tokenCostEstimate.estimatedCost.toFixed(4)}</li>
+            </ul>
+          </div>
+        )}
+
         {/* Generate Button */}
         <div style={{ marginTop: '2rem' }}>
           <button
@@ -368,27 +402,8 @@ return (
           dangerouslySetInnerHTML={{ __html: marked.parse(generatedAdventure) }}
         />
         <button
-          onClick={async () => {
-            const element = document.querySelector('.adventure-content');
-            const clone = element.cloneNode(true);
-            const style = document.createElement('style');
-            style.innerHTML = pdfStyles;
-            clone.appendChild(style);
-            
-            const { default: html2pdf } = await import('html2pdf.js');
-
-            html2pdf()
-              .from(clone)
-              .set({
-                margin: 0.5,
-                filename: 'adventure.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
-            })
-             .save();
-         }}
-         style={{
+          onClick={handleDownloadPdf}
+          style={{
            marginTop: '1rem',
            padding: '0.6rem 1.2rem',
            fontSize: '1rem',
